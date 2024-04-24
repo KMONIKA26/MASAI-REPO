@@ -1,35 +1,50 @@
-let container = document.querySelector(".container")
-let btn = document.querySelector(".fetch-todo")
-let dataContainer = document.querySelector(".data")
+let container = document.querySelector(".container");
+let fetchBtn = document.querySelector(".fetch");
+let high = document.querySelector(".high");
+let low = document.querySelector(".low");
+
+let arr = [];
 
 async function fetchApi() {
     try {
-        let res = await fetch('https://jsonplaceholder.typicode.com/todos');
-        let finalRes = await res.json()
-
-        console.log(finalRes)
-
-        finalRes.forEach(element => {
-            console.log(element)
-            dataContainer.append(card(element.title, element.completed))
-        });
-
+        let api = await fetch('https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-countries');
+        let finalApi = await api.json();
+        arr = finalApi.data;
+        displayData(finalApi.data);
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 }
 
-function card(title, isCompleted) {
-    let card = document.createElement("div");
-    card.innerHTML = `
-        <div class="card">
-            <span> 
-                <p>${title}</p> 
-                <input type="checkbox" ${isCompleted ? "checked" : ""} name="" id="">
-            </span>
-        </div>
-    `
-    return card
+fetchBtn.addEventListener('click', fetchApi);
+
+function displayData(data) {
+    container.innerHTML = "";
+
+    data.forEach(element => {
+        let countryElement = document.createElement("div");
+        countryElement.className = "card";
+
+        let countryName = document.createElement("h2");
+        let countryDetails = document.createElement("p");
+
+        countryName.textContent = element.country;
+        countryDetails.textContent = `ID: ${element.id}, Rank: ${element.Rank}, Population: ${element.population}`;
+        countryDetails.className = "details";
+
+        countryElement.appendChild(countryName);
+        countryElement.appendChild(countryDetails);
+
+        container.appendChild(countryElement);
+    });
 }
 
-btn.addEventListener('click', fetchApi);
+high.addEventListener('click', () => {
+    arr.sort((a, b) => b.population - a.population);
+    displayData(arr);
+});
+
+low.addEventListener('click', () => {
+    arr.sort((a, b) => a.population - b.population);
+    displayData(arr);
+});
